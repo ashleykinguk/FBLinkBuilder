@@ -1,3 +1,4 @@
+import sys
 import os 
 import json
 import argparse
@@ -7,19 +8,27 @@ from datetime import datetime
 fname = datetime.now().strftime("FB_Deeplinks%d%m%Y%H%M%S.txt") #default filename
 
 parser = argparse.ArgumentParser() 
-parser.add_argument('-i', help='Facebook APK file')
+parser.add_argument('-i', help='Facebook APK/IPA file')
 parser.add_argument('-o', help='Output file', nargs='?', default=fname)
 parser.add_argument('-e', help='Only show exported. Defaulted to False', nargs='?', default=False)
 args = parser.parse_args()
 
-file_name = args.i #apk
+if len(sys.argv)==1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
+file_name = args.i #apk or ipa
 output_name = args.o #generated output / provided
 exported = args.e #False / provided
 
 with ZipFile(file_name, 'r') as zip: 
     print('Extracting native routes file...') #fyi
     
-    data = zip.read('assets/react_native_routes.json') #extract file from zip
+    if file_name.lower().endswith('.apk'):
+        data = zip.read('assets/react_native_routes.json') #extract file from zip
+    elif file_name.lower().endswith('.ipa'):
+        data = zip.read('Payload/Facebook.app/react_native_routes.json') # extract from ipa
+
     js = json.loads(data.decode("utf-8")) #to read as list
 
     params = '' #placeholder

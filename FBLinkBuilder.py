@@ -27,7 +27,9 @@ with ZipFile(file_name, 'r') as zip:
     if file_name.lower().endswith('.apk'):
         data = zip.read('assets/react_native_routes.json') #extract file from zip
     elif file_name.lower().endswith('.ipa'):
-        data = zip.read('Payload/Facebook.app/react_native_routes.json') # extract from ipa
+        names = [name for name in zip.namelist() if name.endswith('.app/')]
+        app_name = names[0] # Get the first item named .app and hope it's the name of the app :)
+        data = zip.read(app_name+'react_native_routes.json') # extract from ipa
 
     js = json.loads(data.decode("utf-8")) #to read as list
 
